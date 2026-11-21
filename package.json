@@ -1,0 +1,27 @@
+{
+  "name": "@ajeshajayan/agent-foo-react",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Ajesh Ajayan",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "vite playground"
+  },
+  "devDependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vite": "^8.3.8"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "dependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
