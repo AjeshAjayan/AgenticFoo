@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { extractFields, getForm, getMissingIdError } from './formFields';
 
 export function getFormError(children: React.ReactNode): string | null {
     const nodes = React.Children.toArray(children);
@@ -14,5 +15,5 @@ export function getFormError(children: React.ReactNode): string | null {
     if (!React.isValidElement(child) || child.type !== 'form') {
         return 'AgentFoo expects its child to be a <form> element.';
     }
-    return null;
+    return getMissingIdError(extractFields(getForm(children)!));
 }

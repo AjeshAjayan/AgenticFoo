@@ -6,7 +6,7 @@ export type ChatMessage = {
 /** A value the agent wants to put into a field. Use `boolean` for a lone checkbox, `string[]` for multi-selects / checkbox groups. */
 export type FieldValue = string | string[] | boolean;
 
-/** Field updates keyed by the field's `name` (or `id` when it has no name). */
+/** Field updates keyed by the field's `id` (or by `name` for a radio group). */
 export type FormUpdates = Record<string, FieldValue>;
 
 export type AgentRequest = {

@@ -23,10 +23,14 @@ export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
     const formContainerRef = React.useRef<HTMLDivElement>(null);
     const error = getFormError(children);
     // Empty string when `children` is not a valid form (see `error` above).
-    const systemPrompt = React.useMemo(() => buildSystemPrompt(children), [children]);
+    const systemPrompt = React.useMemo(() => (error ? '' : buildSystemPrompt(children)), [children, error]);
 
     // Current form state, rebuilt whenever the form re-renders with new values.
-    const formStateMessage = buildFormStateMessage(children);
+    const formStateMessage = error ? '' : buildFormStateMessage(children);
+
+    // Always read the latest values when a message is sent, not those from when the handler was created.
+    const latest = React.useRef({ systemPrompt, formStateMessage });
+    latest.current = { systemPrompt, formStateMessage };
 
     console.log('[AgentFoo] system prompt:', systemPrompt);
     console.log('[AgentFoo] form state message:', formStateMessage);
@@ -42,10 +46,6 @@ export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
             <strong>AgentFoo error:</strong> {error}
         </section>;
     }
-
-    // Always read the latest values when a message is sent, not those from when the handler was created.
-    const latest = React.useRef({ systemPrompt, formStateMessage });
-    latest.current = { systemPrompt, formStateMessage };
 
     const handleSend = async (text: string) => {
         if (!onAgentTurn) return;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { extractFields, getForm, getFormName, groupRadios, type FormField } from './formFields';
+import { extractFields, getForm, getFormName, getMissingIdError, groupRadios, type FormField } from './formFields';
 
 const NUMERIC_TYPES = new Set(['number', 'range']);
 const ORDERED_STRING_TYPES = new Set(['date', 'month', 'week', 'time', 'datetime-local']);
@@ -90,7 +90,8 @@ function describeValue(field: FormField): string {
 
 function describeField(field: FormField, index: number): { line: string; status: FieldStatus } {
     const title = field.label ?? field.name ?? field.id ?? `Field ${index + 1}`;
-    const ident = field.name ?? field.id;
+    // Radio groups are addressed by their shared name; everything else by id.
+    const ident = field.type === 'radio' ? (field.name ?? field.id) : field.id;
     const status = validate(field);
 
     const flags: string[] = [];
@@ -99,7 +100,7 @@ function describeField(field: FormField, index: number): { line: string; status:
 
     const line =
         `${index + 1}. ${title}` +
-        (ident && ident !== title ? ` (name: ${ident})` : '') +
+        (ident ? ` (${field.type === 'radio' ? 'name' : 'id'}: ${ident})` : '') +
         ` = ${describeValue(field)}` +
         (flags.length ? `  [${flags.join('; ')}]` : '');
     return { line, status };
@@ -121,7 +122,13 @@ export function buildFormStateMessage(children: React.ReactNode): string {
     const form = getForm(children);
     if (!form) return '';
 
-    const fields = groupRadios(extractFields(form));
+    const rawFields = extractFields(form);
+    const idError = getMissingIdError(rawFields);
+    if (idError) {
+        console.error(`[AgentFoo] ${idError}`);
+        throw new Error(idError);
+    }
+    const fields = groupRadios(rawFields);
     const formName = getFormName(form);
 
     const sections = [formName ? `# Current state of form: ${formName}` : '# Current state of form'];

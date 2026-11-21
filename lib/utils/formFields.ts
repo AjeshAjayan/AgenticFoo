@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export type FormFieldOption = { value: string; label: string; selected?: boolean };
+export type FormFieldOption = { value: string; label: string; selected?: boolean; id?: string };
 
 export type FormField = {
     kind: 'input' | 'textarea' | 'select';
@@ -189,7 +189,7 @@ export function groupRadios(fields: FormField[]): FormField[] {
             result.push(field);
             continue;
         }
-        const option = { value: field.defaultValue ?? field.label ?? '', label: field.label ?? '' };
+        const option = { value: field.defaultValue ?? field.label ?? '', label: field.label ?? '', id: field.id };
         const existing = groups.get(field.name);
         if (existing) {
             existing.options!.push(option);
@@ -209,4 +209,22 @@ export function groupRadios(fields: FormField[]): FormField[] {
         }
     }
     return result;
+}
+
+/** Human-readable name for a field, used in error messages. */
+function fieldTitle(field: FormField, index: number): string {
+    return field.label ?? field.name ?? `${field.type} field #${index + 1}`;
+}
+
+/**
+ * Every control must have an `id`: it is how the agent addresses fields and how values
+ * are written back. Returns an error message listing the offenders, or `null` when all have one.
+ * Must run on the ungrouped fields so each radio of a group is checked individually.
+ */
+export function getMissingIdError(fields: FormField[]): string | null {
+    const missing = fields.flatMap((f, i) => (f.id ? [] : [`"${fieldTitle(f, i)}"`]));
+    if (missing.length === 0) return null;
+    return `AgentFoo requires every form field to have an \`id\`, but ${missing.length} ${
+        missing.length === 1 ? 'is' : 'are'
+    } missing one: ${missing.join(', ')}.`;
 }
