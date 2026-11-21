@@ -3,8 +3,17 @@
 `@ajeshajayan/agent-foo-react` — a React component that adds an AI "agent mode" to any HTML form. Wrap your `<form>` in `<AgentFoo>`, and users can fill it in by chatting: the agent reads the form's fields, asks for anything missing, and writes values straight into the inputs.
 
 > **Status:** early development. The OpenAI/OpenRouter client runs in the browser, which exposes your API key. Use it for local development only (see [Security](#security)).
+## Light mode
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/demo-light.gif">
+  <img alt="Agent mode filling a form from a chat message" src="docs/demo-light.gif">
+</picture>
 
-![Agent mode filling a form from a chat message](docs/agent-mode.png)
+## Dark mode
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/demo-dark.gif">
+  <img alt="Agent mode filling a form from a chat message" src="docs/demo-dark.gif">
+</picture>
 
 ## How it works
 
