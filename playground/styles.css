@@ -1,0 +1,499 @@
+/* Playground styles. The library ships none; this is one example of an app's own design. */
+
+:root {
+  --paper: #edefe9;
+  --sheet: #fbfbf8;
+  --ink: #1e2b4f;
+  --on-ink: #fbfbf8;
+  --graphite: #5c6270;
+  --rule: #cdd2cb;
+  --marker-rgb: 233 242 90; /* #E9F25A */
+  --marker-strength: 1;
+  --marker-text: var(--ink); /* text colour while the marker is under it */
+
+  --font: "Schibsted Grotesk", system-ui, sans-serif;
+  /* 1.25 scale from 17px */
+  --step--1: 0.8rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.328rem;
+  --step-2: 1.66rem;
+  --step-3: 2.625rem;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #171a20;
+    --sheet: #1f232b;
+    --ink: #e6e8ee;
+    --on-ink: #171a20;
+    --graphite: #a3a9b6;
+    --rule: #3a404b;
+    /* Full-strength marker with dark text reads like a real highlighter on a dark page. */
+    --marker-text: #171a20;
+    color-scheme: dark;
+  }
+}
+
+/* Same tokens when the user picks dark with the theme switch. */
+:root[data-theme="dark"] {
+  --paper: #171a20;
+  --sheet: #1f232b;
+  --ink: #e6e8ee;
+  --on-ink: #171a20;
+  --graphite: #a3a9b6;
+  --rule: #3a404b;
+  --marker-text: #171a20;
+  color-scheme: dark;
+}
+
+/* Lets the marker fade while its sweep finishes. */
+@property --marker-alpha {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* ---------- Page ---------- */
+
+.page {
+  max-width: 66rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 5rem) 1rem 4rem;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding-inline: 2rem;
+  }
+}
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.theme-switch {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+}
+
+.theme-switch button {
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 500;
+  padding: 0.3rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.theme-switch button:hover {
+  color: var(--ink);
+}
+
+.theme-switch button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.intro {
+  max-width: 34rem;
+  margin-bottom: 2.5rem;
+}
+
+.intro h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(var(--step-2), 5vw, var(--step-3));
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 18ch;
+}
+
+.intro p {
+  margin: 0;
+  color: var(--graphite);
+  max-width: 34em;
+}
+
+/* ---------- AgentFoo layout ---------- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 34rem);
+  gap: 1rem 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .workspace[data-mode="agent"] {
+    grid-template-columns: minmax(0, 34rem) minmax(0, 1fr);
+  }
+
+  .workspace[data-mode="agent"] [data-agent-foo="toolbar"] {
+    grid-column: 1 / -1;
+  }
+
+  .workspace[data-mode="agent"] .notes {
+    position: sticky;
+    top: 1.5rem;
+  }
+}
+
+[data-agent-foo="toolbar"] {
+  display: flex;
+}
+
+[data-agent-foo="toggle"] {
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 500;
+  padding: 0.55rem 1rem 0.55rem 0.8rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+/* A marker swatch: the same colour that flags agent-filled fields. */
+[data-agent-foo="toggle"]::before {
+  content: "";
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 3px;
+  background: rgb(var(--marker-rgb));
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+
+[data-agent-foo="toggle"][aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* ---------- Form sheet ---------- */
+
+.sheet {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+.sheet form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field label {
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--graphite);
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.optional {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.field input,
+.field textarea {
+  font: inherit;
+  font-size: var(--step-1);
+  color: var(--ink);
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule);
+  border-radius: 0;
+  padding: 0.3rem 0.2rem 0.35rem;
+  width: 100%;
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--ink);
+  box-shadow: 0 1.5px 0 var(--ink);
+}
+
+.field input:user-invalid {
+  border-bottom-color: #b4372f;
+}
+
+.submit {
+  align-self: flex-start;
+  font: inherit;
+  font-weight: 500;
+  padding: 0.7rem 1.4rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--on-ink);
+  cursor: pointer;
+}
+
+/* ---------- Agent-filled flash: a highlighter stroke across the field ---------- */
+
+.field [data-agent-updated] {
+  background-image: linear-gradient(
+    100deg,
+    rgb(var(--marker-rgb) / calc(var(--marker-alpha) * var(--marker-strength))) 0 97%,
+    transparent
+  );
+  background-position: left center;
+  background-size: 100% 82%;
+  animation: marker-sweep 1.6s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+
+.field textarea[data-agent-updated] {
+  background-size: 100% 100%;
+}
+
+@keyframes marker-sweep {
+  0% {
+    background-size: 0% 82%;
+    --marker-alpha: 1;
+  }
+  28% {
+    background-size: 100% 82%;
+    --marker-alpha: 1;
+    color: var(--marker-text);
+  }
+  62% {
+    --marker-alpha: 0.9;
+    color: var(--marker-text);
+  }
+  100% {
+    background-size: 100% 82%;
+    --marker-alpha: 0;
+    color: var(--ink);
+  }
+}
+
+/* The label says why the field lit up. */
+.field:has([data-agent-updated]) label::after {
+  content: "filled by agent";
+  font-weight: 400;
+  color: var(--ink);
+  animation: note-fade 1.6s ease-out both;
+}
+
+@keyframes note-fade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---------- Chat as margin notes ---------- */
+
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+[data-agent-foo="log"] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-height: min(28rem, 60vh);
+  overflow-y: auto;
+  padding: 0.25rem 0.25rem 0.25rem 0;
+}
+
+[data-agent-foo="hint"],
+[data-agent-foo="notice"] {
+  margin: 0;
+  color: var(--graphite);
+  max-width: 32em;
+}
+
+[data-agent-foo="notice"] {
+  font-size: var(--step--1);
+}
+
+[data-agent-foo="message"],
+[data-agent-foo="pending"] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 85%;
+}
+
+[data-agent-foo="message"][data-role="assistant"],
+[data-agent-foo="pending"] {
+  align-self: flex-start;
+  border-left: 2px solid var(--ink);
+  padding: 0.1rem 0 0.1rem 0.85rem;
+}
+
+[data-agent-foo="message"][data-role="user"] {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--on-ink);
+  padding: 0.55rem 0.9rem;
+  border-radius: 14px 14px 4px 14px;
+}
+
+[data-agent-foo="pending"] {
+  color: var(--graphite);
+  animation: thinking 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes thinking {
+  from { opacity: 1; }
+  to { opacity: 0.45; }
+}
+
+[data-agent-foo="composer"] {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  border-top: 1px solid var(--rule);
+  padding-top: 0.75rem;
+}
+
+[data-agent-foo="input"] {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+}
+
+[data-agent-foo="input"]::placeholder {
+  color: var(--graphite);
+}
+
+[data-agent-foo="input"]:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+[data-agent-foo="send"] {
+  font: inherit;
+  font-weight: 500;
+  padding: 0.6rem 1.1rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--on-ink);
+  cursor: pointer;
+}
+
+[data-agent-foo="send"]:disabled,
+[data-agent-foo="input"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-agent-foo="error"] {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid #b4372f;
+  background: var(--sheet);
+}
+
+/* ---------- Receipt ---------- */
+
+.receipt {
+  max-width: 34rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1.5px dashed var(--rule);
+}
+
+.receipt h2 {
+  margin: 0 0 0.75rem;
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.receipt dl {
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.receipt dl > div {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 1rem;
+}
+
+.receipt dt {
+  color: var(--graphite);
+  text-transform: capitalize;
+}
+
+.receipt dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* ---------- Reduced motion: static tint that fades, no sweep or pulse ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .field [data-agent-updated] {
+    animation-name: marker-fade;
+  }
+
+  @keyframes marker-fade {
+    0%, 60% { --marker-alpha: 1; color: var(--marker-text); }
+    100% { --marker-alpha: 0; color: var(--ink); }
+  }
+
+  [data-agent-foo="pending"] {
+    animation: none;
+  }
+}

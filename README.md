@@ -49,6 +49,35 @@ const getUserDetails = defineTool({
 | `apiKey`   | `string`       | API key for the model provider. Without it (or `model`) chat is disabled.   |
 | `model`    | `string`       | Model id, e.g. `"openai/gpt-4o"`.                                           |
 | `tools`    | `ToolSchema[]` | Optional developer tools the agent may call. Create them with `defineTool`. |
+| `classNames` | `AgentFooClassNames` | Optional class names per rendered element (see [Styling](#styling)). |
+| `highlightDuration` | `number` | How long (ms) a field keeps `data-agent-updated` after the agent changes it. Default `1600`. |
+
+### Styling
+
+AgentFoo ships **no CSS**, so it takes on your app's design. Style it in either of two ways:
+
+- **`classNames`**: pass a class for any slot. Works with CSS modules, Tailwind or plain classes. Slots: `root`, `toolbar`, `toggle`, `formContainer`, `error`, `chat`, `log`, `hint`, `message` (every bubble), `userMessage`, `agentMessage`, `pending`, `notice`, `composer`, `input`, `send`, `updatedField`.
+- **`data-agent-foo` attributes**: every element carries `data-agent-foo="<slot>"` (kebab-case, e.g. `form-container`). State is exposed too: the root has `data-mode="form" | "agent"` and `data-pending` while the agent runs, each message has `data-role="user" | "assistant"`, and the toggle has `aria-pressed`.
+
+**Showing what the agent just filled.** When the agent changes a field, AgentFoo adds `data-agent-updated` (and `classNames.updatedField`, if set) to that input for `highlightDuration` ms. Updating the same field again restarts it, so CSS animations replay. How it looks is up to you:
+
+```css
+/* Flash the input itself */
+input[data-agent-updated],
+textarea[data-agent-updated] {
+  animation: just-filled 1.6s ease-out;
+}
+@keyframes just-filled {
+  from { background-color: #fff59d; }
+}
+
+/* Or decorate the field wrapper */
+.field:has([data-agent-updated]) label::after {
+  content: " (filled by agent)";
+}
+```
+
+See `playground/styles.css` for a complete example.
 
 ### Form requirements
 
@@ -66,9 +95,8 @@ A tool is a name, description, JSON Schema `parameters` (root must be `type: "ob
 ```
 lib/
   AgentFoo.tsx          Main component: form wrapper, agent mode toggle, wiring
-  AgentChat.tsx         Chat UI
-  AgentFoo.module.css   Styles
-  types.ts              ChatMessage, FieldValue, FormUpdates
+  AgentChat.tsx         Chat UI (unstyled)
+  types.ts              ChatMessage, FieldValue, FormUpdates, AgentFooClassNames
   agent/
     runAgent.ts         Provider-independent agent loop
     builtinTools.ts     update_form / ask_user / finish
@@ -82,7 +110,9 @@ lib/
     buildFormStateMessage.ts  Current values / missing / invalid summary
     applyFormUpdates.ts     Write agent values into the DOM form
     getFormError.ts         Validate `children`
-playground/             Vite demo app (name / email / message form)
+    markUpdated.ts          Flag fields the agent just changed (`data-agent-updated`)
+    cx.ts                   Join class names
+playground/             Vite demo app (name / email / message form) and its styles.css
 ```
 
 `runAgent` only depends on the `LLMClient` interface (`createCompletion({ messages, tools, signal })`), so the OpenAI client can be swapped for one that calls your backend.

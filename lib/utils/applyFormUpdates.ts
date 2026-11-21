@@ -6,6 +6,8 @@ export type ApplyResult = {
     applied: string[];
     /** Keys that matched no enabled field in the form. */
     unknown: string[];
+    /** Every control matched by an applied key (all radios/checkboxes of a group). */
+    elements: Control[];
 };
 
 function isControl(el: Element): el is Control {
@@ -66,7 +68,7 @@ function applyToControls(controls: Control[], value: string | string[] | boolean
 /** Writes the agent's `updates` into the rendered `<form>`, firing the events a user's edit would. */
 export function applyFormUpdates(form: HTMLFormElement, updates: FormUpdates): ApplyResult {
     const controls = Array.from(form.elements).filter(isControl);
-    const result: ApplyResult = { applied: [], unknown: [] };
+    const result: ApplyResult = { applied: [], unknown: [], elements: [] };
 
     for (const [key, value] of Object.entries(updates)) {
         const matches = controls.filter(
@@ -78,6 +80,7 @@ export function applyFormUpdates(form: HTMLFormElement, updates: FormUpdates): A
         }
         applyToControls(matches, value);
         result.applied.push(key);
+        result.elements.push(...matches);
     }
     return result;
 }
