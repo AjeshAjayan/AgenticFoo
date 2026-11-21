@@ -4,6 +4,8 @@
 
 > **Status:** early development. The OpenAI/OpenRouter client runs in the browser, which exposes your API key. Use it for local development only (see [Security](#security)).
 
+![Agent mode filling a form from a chat message](docs/agent-mode.png)
+
 ## How it works
 
 1. `AgentFoo` inspects the `<form>` you pass as `children` and builds a system prompt describing every field (id, name, type, required, constraints, allowed values).
