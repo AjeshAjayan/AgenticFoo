@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { AgentFoo } from "../lib/AgentFoo";
+import { AgentFoo, type AgentFooClassNames } from "../lib/AgentFoo";
 import { defineTool } from "../lib/agent";
+import { ThemeSwitch } from "./ThemeSwitch";
 
 // Example developer tool: the model can call this to look up the signed-in user.
 const getUserDetails = defineTool({
@@ -11,6 +12,14 @@ const getUserDetails = defineTool({
 });
 
 const tools = [getUserDetails];
+
+// AgentFoo ships no styles. The playground passes a few class names to show the prop;
+// everything else is styled through the `data-agent-foo` attributes in styles.css.
+const classNames: AgentFooClassNames = {
+  root: "workspace",
+  formContainer: "sheet",
+  chat: "notes",
+};
 
 export default function App() {
   const [values, setValues] = useState({ name: "", email: "", message: "" });
@@ -28,27 +37,54 @@ export default function App() {
   };
 
   return (
-    <AgentFoo
-      apiKey={import.meta.env.VITE_OPENAI_API_KEY}
-      model={import.meta.env.VITE_OPENAI_MODEL}
-      tools={tools}
-    >
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input id="name" name="name" type="text" required {...bind("name")} />
-        </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required {...bind("email")} />
-        </div>
-        <div>
-          <label htmlFor="message">Message</label>
-          <textarea id="message" name="message" rows={4} {...bind("message")} />
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-      {submitted && <pre>{JSON.stringify(submitted, null, 2)}</pre>}
-    </AgentFoo>
+    <main className="page">
+      <div className="topbar">
+        <ThemeSwitch />
+      </div>
+      <header className="intro">
+        <h1>Fill this form by telling it what to write.</h1>
+        <p>
+          Turn on agent mode and describe what you want. Each field the agent fills is
+          marked as it lands, so you can check its work.
+        </p>
+      </header>
+
+      <AgentFoo
+        apiKey={import.meta.env.VITE_OPENAI_API_KEY}
+        model={import.meta.env.VITE_OPENAI_MODEL}
+        tools={tools}
+        classNames={classNames}
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="name">Name</label>
+            <input id="name" name="name" type="text" autoComplete="name" required {...bind("name")} />
+          </div>
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" autoComplete="email" required {...bind("email")} />
+          </div>
+          <div className="field">
+            <label htmlFor="message">Message <span className="optional">optional</span></label>
+            <textarea id="message" name="message" rows={4} {...bind("message")} />
+          </div>
+          <button type="submit" className="submit">Send request</button>
+        </form>
+      </AgentFoo>
+
+      {submitted && (
+        <section className="receipt" aria-live="polite">
+          <h2>Request sent</h2>
+          <dl>
+            {Object.entries(submitted).map(([key, value]) => (
+              <div key={key}>
+                <dt>{key}</dt>
+                <dd>{value || "—"}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+    </main>
   );
 }

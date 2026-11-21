@@ -1,15 +1,17 @@
 import * as React from 'react';
-import styles from './AgentFoo.module.css';
 import { getFormError } from './utils/getFormError';
 import { buildSystemPrompt } from './utils/buildSystemPrompt';
 import { buildFormStateMessage, getFormSummary } from './utils/buildFormStateMessage';
 import { applyFormUpdates } from './utils/applyFormUpdates';
+import { markUpdated } from './utils/markUpdated';
 import { AgentChat } from './AgentChat';
 import { runAgent } from './agent/runAgent';
 import { createOpenAIClient } from './agent/openaiClient';
 import { getToolsError } from './agent/toolSchema';
 import type { AgentEvent, ToolSchema } from './agent/types';
-import type { ChatMessage } from './types';
+import type { AgentFooClassNames, ChatMessage } from './types';
+
+export type { AgentFooClassNames };
 
 type AgentFooProps = {
     children?: React.ReactNode;
@@ -19,6 +21,13 @@ type AgentFooProps = {
     model?: string;
     /** Tools the agent can call, e.g. to fetch user details. Each includes the function to run. */
     tools?: ToolSchema[];
+    /**
+     * Class names for the elements AgentFoo renders. AgentFoo ships no styles: use this, or target
+     * the `data-agent-foo="<slot>"` attributes, to apply your app's design.
+     */
+    classNames?: AgentFooClassNames;
+    /** How long (ms) a field keeps `data-agent-updated` after the agent changes it. Default 1600. */
+    highlightDuration?: number;
 }
 
 /** Turns an agent event into a chat line, or null when it should not be shown. */
@@ -35,11 +44,16 @@ function describeEvent(event: AgentEvent): string | null {
     }
 }
 
-export function AgentFoo({ children, apiKey, model, tools }: AgentFooProps) {
+export function AgentFoo({ children, apiKey, model, tools, classNames: c = {}, highlightDuration = 1600 }: AgentFooProps) {
     const [isAgentMode, setIsAgentMode] = React.useState(false);
     const [messages, setMessages] = React.useState<ChatMessage[]>([]);
     const [pending, setPending] = React.useState(false);
     const formContainerRef = React.useRef<HTMLDivElement>(null);
+    // Clears field highlights that are still showing when AgentFoo unmounts.
+    const clearHighlights = React.useRef(new Set<() => void>());
+    React.useEffect(() => () => {
+        for (const clear of clearHighlights.current) clear();
+    }, []);
     const error = getFormError(children) ?? getToolsError(tools);
     // Empty string when `children` is not a valid form (see `error` above).
     const systemPrompt = React.useMemo(() => (error ? '' : buildSystemPrompt(children)), [children, error]);
@@ -67,8 +81,10 @@ export function AgentFoo({ children, apiKey, model, tools }: AgentFooProps) {
     }, [error]);
 
     if (error) {
-        return <section className={styles.wrapper} role="alert">
-            <strong>AgentFoo error:</strong> {error}
+        return <section className={c.root} data-agent-foo="root">
+            <p className={c.error} data-agent-foo="error" role="alert">
+                <strong>AgentFoo error:</strong> {error}
+            </p>
         </section>;
     }
 
@@ -100,6 +116,9 @@ export function AgentFoo({ children, apiKey, model, tools }: AgentFooProps) {
                 fieldIds: latest.current.summary.fieldKeys,
                 applyUpdates: (updates) => {
                     const result = applyFormUpdates(form, updates);
+                    const clear = markUpdated(result.elements, { className: c.updatedField, duration: highlightDuration });
+                    clearHighlights.current.add(clear);
+                    setTimeout(() => clearHighlights.current.delete(clear), highlightDuration);
                     if (result.unknown.length) {
                         console.warn(`[AgentFoo] agent referenced unknown or disabled fields: ${result.unknown.join(', ')}`);
                     }
@@ -120,13 +139,24 @@ export function AgentFoo({ children, apiKey, model, tools }: AgentFooProps) {
         }
     };
 
-    return <section className={styles.wrapper}>
-        <div className={styles.agentControlWrapper}>
-            <button onClick={() => setIsAgentMode(!isAgentMode)}>
+    return <section
+        className={c.root}
+        data-agent-foo="root"
+        data-mode={isAgentMode ? 'agent' : 'form'}
+        data-pending={pending || undefined}
+    >
+        <div className={c.toolbar} data-agent-foo="toolbar">
+            <button
+                type="button"
+                className={c.toggle}
+                data-agent-foo="toggle"
+                aria-pressed={isAgentMode}
+                onClick={() => setIsAgentMode(!isAgentMode)}
+            >
                 {isAgentMode ? 'Exit Agent Mode' : 'Enter Agent Mode'}
             </button>
         </div>
-        <div ref={formContainerRef}>
+        <div className={c.formContainer} data-agent-foo="form-container" ref={formContainerRef}>
             {children}
         </div>
         {isAgentMode && <AgentChat
@@ -134,6 +164,7 @@ export function AgentFoo({ children, apiKey, model, tools }: AgentFooProps) {
             pending={pending}
             disabledReason={client ? undefined : 'No agent is connected. Pass `apiKey` and `model` to <AgentFoo>.'}
             onSend={handleSend}
+            classNames={c}
         />}
     </section>;
 }

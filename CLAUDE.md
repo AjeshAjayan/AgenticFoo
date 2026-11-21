@@ -19,4 +19,5 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `lib/agent/builtinTools.ts` defines the built-ins `update_form`, `ask_user`, and `finish`. `update_form` writes values straight into the DOM inputs via `utils/applyFormUpdates.ts`, and the agent then receives fresh state from `utils/buildFormStateMessage.ts`.
 - `lib/agent/toolSchema.ts` validates developer tools (created with `defineTool`) and converts them to the wire format. Tool names must not clash with the built-ins.
 - `lib/agent/openaiClient.ts` is the **only** file that imports `openai`. It calls OpenRouter from the browser with `dangerouslyAllowBrowser: true`, which exposes the API key, so it is for local development only. Production is meant to swap in an `LLMClient` that POSTs to a backend.
-- `playground/` is the Vite demo app and is not part of the library.
+- `lib/` ships **no CSS or inline styles**; it must stay style-agnostic. Every rendered element takes a class from the `classNames` prop (`AgentFooClassNames` in `lib/types.ts`) and carries a `data-agent-foo="<slot>"` attribute. Fields the agent just changed get `data-agent-updated` for `highlightDuration` ms (`utils/markUpdated.ts`). Visual design belongs in the host app.
+- `playground/` is the Vite demo app and is not part of the library; its design lives in `playground/styles.css`.
