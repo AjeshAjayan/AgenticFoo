@@ -107,6 +107,25 @@ function describeField(field: FormField, index: number): { line: string; status:
 }
 
 /**
+ * Keys the agent can update (field ids, radio groups by name) and how many required
+ * fields are still missing / invalid. Used to constrain tool arguments and to detect completion.
+ */
+export function getFormSummary(children: React.ReactNode): { fieldKeys: string[]; missing: number; invalid: number } {
+    const form = getForm(children);
+    if (!form) return { fieldKeys: [], missing: 0, invalid: 0 };
+    const fields = groupRadios(extractFields(form));
+    const statuses = fields.map((f) => validate(f));
+    return {
+        fieldKeys: fields
+            .filter((f) => !f.disabled)
+            .map((f) => (f.type === 'radio' ? (f.name ?? f.id) : f.id))
+            .filter((k): k is string => !!k),
+        missing: statuses.filter((s) => s.missing).length,
+        invalid: statuses.filter((s) => s.problems.length > 0).length,
+    };
+}
+
+/**
  * Builds a message describing the *current* state of the form passed as `children`,
  * meant to be sent back to the agent after its values were applied so it can verify
  * them or make corrections. Pairs with `buildSystemPrompt`, which describes the form itself.

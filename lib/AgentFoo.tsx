@@ -2,26 +2,45 @@ import * as React from 'react';
 import styles from './AgentFoo.module.css';
 import { getFormError } from './utils/getFormError';
 import { buildSystemPrompt } from './utils/buildSystemPrompt';
-import { buildFormStateMessage } from './utils/buildFormStateMessage';
+import { buildFormStateMessage, getFormSummary } from './utils/buildFormStateMessage';
 import { applyFormUpdates } from './utils/applyFormUpdates';
 import { AgentChat } from './AgentChat';
-import type { AgentHandler, ChatMessage } from './types';
+import { runAgent } from './agent/runAgent';
+import { createOpenAIClient } from './agent/openaiClient';
+import { getToolsError } from './agent/toolSchema';
+import type { AgentEvent, ToolSchema } from './agent/types';
+import type { ChatMessage } from './types';
 
 type AgentFooProps = {
     children?: React.ReactNode;
-    /**
-     * Called for every user message in agent mode. Send the request to your model and
-     * resolve with the reply (ask a question back via `message`) and any form `updates`.
-     */
-    onAgentTurn?: AgentHandler;
+    /** OpenAI API key. Exposed to the browser for now; will move to a backend. */
+    apiKey?: string;
+    /** OpenAI model id, e.g. "gpt-4o". */
+    model?: string;
+    /** Tools the agent can call, e.g. to fetch user details. Each includes the function to run. */
+    tools?: ToolSchema[];
 }
 
-export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
+/** Turns an agent event into a chat line, or null when it should not be shown. */
+function describeEvent(event: AgentEvent): string | null {
+    switch (event.type) {
+        case 'question': return event.question;
+        case 'done': return event.summary ?? 'The form is complete.';
+        case 'error': return event.message;
+        case 'tool_call': return event.error ? `(Tool ${event.name} failed: ${event.error})` : `(Used tool: ${event.name})`;
+        case 'form_update': {
+            const parts = [event.applied.length ? `Filled: ${event.applied.join(', ')}` : '', event.unknown.length ? `Could not set: ${event.unknown.join(', ')}` : ''];
+            return `(${parts.filter(Boolean).join('. ')})`;
+        }
+    }
+}
+
+export function AgentFoo({ children, apiKey, model, tools }: AgentFooProps) {
     const [isAgentMode, setIsAgentMode] = React.useState(false);
     const [messages, setMessages] = React.useState<ChatMessage[]>([]);
     const [pending, setPending] = React.useState(false);
     const formContainerRef = React.useRef<HTMLDivElement>(null);
-    const error = getFormError(children);
+    const error = getFormError(children) ?? getToolsError(tools);
     // Empty string when `children` is not a valid form (see `error` above).
     const systemPrompt = React.useMemo(() => (error ? '' : buildSystemPrompt(children)), [children, error]);
 
@@ -29,8 +48,14 @@ export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
     const formStateMessage = error ? '' : buildFormStateMessage(children);
 
     // Always read the latest values when a message is sent, not those from when the handler was created.
-    const latest = React.useRef({ systemPrompt, formStateMessage });
-    latest.current = { systemPrompt, formStateMessage };
+    const summary = error ? { fieldKeys: [], missing: 0, invalid: 0 } : getFormSummary(children);
+    const latest = React.useRef({ systemPrompt, formStateMessage, summary });
+    latest.current = { systemPrompt, formStateMessage, summary };
+
+    const client = React.useMemo(
+        () => (apiKey && model ? createOpenAIClient({ apiKey, model }) : null),
+        [apiKey, model],
+    );
 
     console.log('[AgentFoo] system prompt:', systemPrompt);
     console.log('[AgentFoo] form state message:', formStateMessage);
@@ -48,9 +73,15 @@ export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
     }
 
     const handleSend = async (text: string) => {
-        if (!onAgentTurn) return;
+        const form = formContainerRef.current?.querySelector('form');
+        if (!client || !form) return;
 
         const history: ChatMessage[] = [...messages, { role: 'user', content: text }];
+        let shown = history;
+        const show = (content: string) => {
+            shown = [...shown, { role: 'assistant', content }];
+            setMessages(shown);
+        };
         setMessages(history);
         setPending(true);
 
@@ -61,21 +92,29 @@ export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
                     ? { ...m, content: `${m.content}\n\n${latest.current.formStateMessage}` }
                     : m,
             );
-            const response = await onAgentTurn({ systemPrompt: latest.current.systemPrompt, messages: request });
-
-            let note = '';
-            const form = formContainerRef.current?.querySelector('form');
-            if (response.updates && form) {
-                const { unknown } = applyFormUpdates(form, response.updates);
-                if (unknown.length) {
-                    console.warn(`[AgentFoo] agent referenced unknown or disabled fields: ${unknown.join(', ')}`);
-                    note = `\n\n(Could not set: ${unknown.join(', ')})`;
-                }
-            }
-            setMessages([...history, { role: 'assistant', content: response.message + note }]);
+            await runAgent({
+                client,
+                systemPrompt: latest.current.systemPrompt,
+                messages: request,
+                tools,
+                fieldIds: latest.current.summary.fieldKeys,
+                applyUpdates: (updates) => {
+                    const result = applyFormUpdates(form, updates);
+                    if (result.unknown.length) {
+                        console.warn(`[AgentFoo] agent referenced unknown or disabled fields: ${result.unknown.join(', ')}`);
+                    }
+                    return result;
+                },
+                getFormState: () => latest.current.formStateMessage,
+                isFormComplete: () => latest.current.summary.missing === 0 && latest.current.summary.invalid === 0,
+                onEvent: (event) => {
+                    const line = describeEvent(event);
+                    if (line) show(line);
+                },
+            });
         } catch (err) {
             console.error('[AgentFoo] agent request failed', err);
-            setMessages([...history, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
+            show('Sorry, something went wrong. Please try again.');
         } finally {
             setPending(false);
         }
@@ -93,7 +132,7 @@ export function AgentFoo({ children, onAgentTurn }: AgentFooProps) {
         {isAgentMode && <AgentChat
             messages={messages}
             pending={pending}
-            disabledReason={onAgentTurn ? undefined : 'No agent is connected. Pass an `onAgentTurn` handler to <AgentFoo>.'}
+            disabledReason={client ? undefined : 'No agent is connected. Pass `apiKey` and `model` to <AgentFoo>.'}
             onSend={handleSend}
         />}
     </section>;

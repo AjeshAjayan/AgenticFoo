@@ -1,18 +1,16 @@
 import { useState } from "react";
 import { AgentFoo } from "../lib/AgentFoo";
-import type { AgentHandler } from "../lib/types";
+import { defineTool } from "../lib/agent";
 
-// Stand-in for a real model call: pulls an email out of the message and asks for whatever is still missing.
-const mockAgent: AgentHandler = async ({ messages }) => {
-  await new Promise((r) => setTimeout(r, 400));
-  const text = messages.map((m) => m.content.split("\n\n#")[0]).join(" ");
-  const email = text.match(/[\w.+-]+@[\w-]+\.[\w.]+/)?.[0];
-  const name = text.match(/(?:my name is|i am|i'm)\s+([A-Z][a-z]+)/i)?.[1];
-  const updates = { ...(name && { name }), ...(email && { email }) };
-  if (!name) return { message: "What is your name?", updates };
-  if (!email) return { message: `Thanks ${name}. What is your email address?`, updates };
-  return { message: "I filled in your name and email. Anything you want to add as a message?", updates };
-};
+// Example developer tool: the model can call this to look up the signed-in user.
+const getUserDetails = defineTool({
+  name: "get_user_details",
+  description: "Fetch the signed-in user's profile (name and email). Use it when the user asks to fill the form with their details.",
+  parameters: { type: "object", properties: {}, additionalProperties: false },
+  execute: async () => ({ name: "Ajesh Ajayan", email: "ajesh@example.com" }),
+});
+
+const tools = [getUserDetails];
 
 export default function App() {
   const [values, setValues] = useState({ name: "", email: "", message: "" });
@@ -30,7 +28,11 @@ export default function App() {
   };
 
   return (
-    <AgentFoo onAgentTurn={mockAgent}>
+    <AgentFoo
+      apiKey={import.meta.env.VITE_OPENAI_API_KEY}
+      model={import.meta.env.VITE_OPENAI_MODEL}
+      tools={tools}
+    >
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Name</label>

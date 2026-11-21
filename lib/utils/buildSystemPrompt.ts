@@ -40,7 +40,7 @@ function describeField(field: FormField, index: number): string {
  * Only host elements are inspected: inputs hidden inside custom components
  * (function/class components) cannot be seen from the element tree.
  */
-export function buildSystemPrompt(children: React.ReactNode): string {
+export function buildSystemPrompt(children: React.ReactNode, tools: { name: string; description: string }[] = []): string {
     const form = getForm(children);
     if (!form) return '';
 
@@ -75,6 +75,23 @@ export function buildSystemPrompt(children: React.ReactNode): string {
             '- For fields with allowed values, use exactly one of those values.\n' +
             '- Leave disabled fields untouched.',
     );
+
+    sections.push(
+        '# How to respond\n' +
+            'Every reply must be a tool call, never plain text:\n' +
+            '- `update_form` to fill in values you know.\n' +
+            '- `ask_user` when required information is missing or unclear.\n' +
+            '- `finish` when the form is complete or there is nothing more you can do.\n' +
+            'After `update_form` you receive the new form state; continue until the form is complete.',
+    );
+
+    if (tools.length) {
+        sections.push(
+            '# Other tools\n' +
+                'You may also call these to look up information before filling the form:\n' +
+                tools.map((t) => `- \`${t.name}\`: ${t.description}`).join('\n'),
+        );
+    }
 
     return sections.join('\n\n');
 }
