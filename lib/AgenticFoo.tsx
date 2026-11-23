@@ -9,11 +9,11 @@ import { runAgent } from './agent/runAgent';
 import { createOpenAIClient } from './agent/openaiClient';
 import { getToolsError } from './agent/toolSchema';
 import type { AgentEvent, ToolSchema } from './agent/types';
-import type { AgentFooClassNames, ChatMessage } from './types';
+import type { AgenticFooClassNames, ChatMessage } from './types';
 
-export type { AgentFooClassNames };
+export type { AgenticFooClassNames };
 
-type AgentFooProps = {
+type AgenticFooProps = {
     children?: React.ReactNode;
     /** OpenAI API key. Exposed to the browser for now; will move to a backend. */
     apiKey?: string;
@@ -22,10 +22,10 @@ type AgentFooProps = {
     /** Tools the agent can call, e.g. to fetch user details. Each includes the function to run. */
     tools?: ToolSchema[];
     /**
-     * Class names for the elements AgentFoo renders. AgentFoo ships no styles: use this, or target
-     * the `data-agent-foo="<slot>"` attributes, to apply your app's design.
+     * Class names for the elements AgenticFoo renders. AgenticFoo ships no styles: use this, or target
+     * the `data-agentic-foo="<slot>"` attributes, to apply your app's design.
      */
-    classNames?: AgentFooClassNames;
+    classNames?: AgenticFooClassNames;
     /** How long (ms) a field keeps `data-agent-updated` after the agent changes it. Default 1600. */
     highlightDuration?: number;
 }
@@ -44,12 +44,12 @@ function describeEvent(event: AgentEvent): string | null {
     }
 }
 
-export function AgentFoo({ children, apiKey, model, tools, classNames: c = {}, highlightDuration = 1600 }: AgentFooProps) {
+export function AgenticFoo({ children, apiKey, model, tools, classNames: c = {}, highlightDuration = 1600 }: AgenticFooProps) {
     const [isAgentMode, setIsAgentMode] = React.useState(false);
     const [messages, setMessages] = React.useState<ChatMessage[]>([]);
     const [pending, setPending] = React.useState(false);
     const formContainerRef = React.useRef<HTMLDivElement>(null);
-    // Clears field highlights that are still showing when AgentFoo unmounts.
+    // Clears field highlights that are still showing when AgenticFoo unmounts.
     const clearHighlights = React.useRef(new Set<() => void>());
     React.useEffect(() => () => {
         for (const clear of clearHighlights.current) clear();
@@ -71,19 +71,19 @@ export function AgentFoo({ children, apiKey, model, tools, classNames: c = {}, h
         [apiKey, model],
     );
 
-    console.log('[AgentFoo] system prompt:', systemPrompt);
-    console.log('[AgentFoo] form state message:', formStateMessage);
+    console.log('[AgenticFoo] system prompt:', systemPrompt);
+    console.log('[AgenticFoo] form state message:', formStateMessage);
 
     React.useEffect(() => {
         if (error) {
-            console.error(`[AgentFoo] ${error}`);
+            console.error(`[AgenticFoo] ${error}`);
         }
     }, [error]);
 
     if (error) {
-        return <section className={c.root} data-agent-foo="root">
-            <p className={c.error} data-agent-foo="error" role="alert">
-                <strong>AgentFoo error:</strong> {error}
+        return <section className={c.root} data-agentic-foo="root">
+            <p className={c.error} data-agentic-foo="error" role="alert">
+                <strong>AgenticFoo error:</strong> {error}
             </p>
         </section>;
     }
@@ -120,7 +120,7 @@ export function AgentFoo({ children, apiKey, model, tools, classNames: c = {}, h
                     clearHighlights.current.add(clear);
                     setTimeout(() => clearHighlights.current.delete(clear), highlightDuration);
                     if (result.unknown.length) {
-                        console.warn(`[AgentFoo] agent referenced unknown or disabled fields: ${result.unknown.join(', ')}`);
+                        console.warn(`[AgenticFoo] agent referenced unknown or disabled fields: ${result.unknown.join(', ')}`);
                     }
                     return result;
                 },
@@ -132,7 +132,7 @@ export function AgentFoo({ children, apiKey, model, tools, classNames: c = {}, h
                 },
             });
         } catch (err) {
-            console.error('[AgentFoo] agent request failed', err);
+            console.error('[AgenticFoo] agent request failed', err);
             show('Sorry, something went wrong. Please try again.');
         } finally {
             setPending(false);
@@ -141,28 +141,28 @@ export function AgentFoo({ children, apiKey, model, tools, classNames: c = {}, h
 
     return <section
         className={c.root}
-        data-agent-foo="root"
+        data-agentic-foo="root"
         data-mode={isAgentMode ? 'agent' : 'form'}
         data-pending={pending || undefined}
     >
-        <div className={c.toolbar} data-agent-foo="toolbar">
+        <div className={c.toolbar} data-agentic-foo="toolbar">
             <button
                 type="button"
                 className={c.toggle}
-                data-agent-foo="toggle"
+                data-agentic-foo="toggle"
                 aria-pressed={isAgentMode}
                 onClick={() => setIsAgentMode(!isAgentMode)}
             >
                 {isAgentMode ? 'Exit Agent Mode' : 'Enter Agent Mode'}
             </button>
         </div>
-        <div className={c.formContainer} data-agent-foo="form-container" ref={formContainerRef}>
+        <div className={c.formContainer} data-agentic-foo="form-container" ref={formContainerRef}>
             {children}
         </div>
         {isAgentMode && <AgentChat
             messages={messages}
             pending={pending}
-            disabledReason={client ? undefined : 'No agent is connected. Pass `apiKey` and `model` to <AgentFoo>.'}
+            disabledReason={client ? undefined : 'No agent is connected. Pass `apiKey` and `model` to <AgenticFoo>.'}
             onSend={handleSend}
             classNames={c}
         />}

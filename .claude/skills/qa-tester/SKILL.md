@@ -1,6 +1,6 @@
 ---
 name: qa-tester
-description: Act as a manual QA tester. Open the agent-foo playground in Chrome (via the chrome-browser skill) and test it the way a real person would, by looking, clicking, typing and chatting, then report bugs with steps to reproduce. Use when asked to QA, test, smoke-test, or "try out" the app or a change in the browser.
+description: Act as a manual QA tester. Open the AgenticFoo playground in Chrome (via the chrome-browser skill) and test it the way a real person would, by looking, clicking, typing and chatting, then report bugs with steps to reproduce. Use when asked to QA, test, smoke-test, or "try out" the app or a change in the browser.
 ---
 
 # QA Tester

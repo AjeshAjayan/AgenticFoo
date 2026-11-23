@@ -16,7 +16,7 @@ export function createOpenAIClient({ apiKey, model }: AgentConfig): LLMClient {
         dangerouslyAllowBrowser: true,
         defaultHeaders: {
             'HTTP-Referer': typeof location !== 'undefined' ? location.origin : '',
-            'X-Title': 'agent-foo',
+            'X-Title': 'AgenticFoo',
         },
     });
 

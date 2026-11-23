@@ -144,7 +144,7 @@ export function buildFormStateMessage(children: React.ReactNode): string {
     const rawFields = extractFields(form);
     const idError = getMissingIdError(rawFields);
     if (idError) {
-        console.error(`[AgentFoo] ${idError}`);
+        console.error(`[AgenticFoo] ${idError}`);
         throw new Error(idError);
     }
     const fields = groupRadios(rawFields);

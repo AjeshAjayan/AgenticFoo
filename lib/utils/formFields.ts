@@ -224,7 +224,7 @@ function fieldTitle(field: FormField, index: number): string {
 export function getMissingIdError(fields: FormField[]): string | null {
     const missing = fields.flatMap((f, i) => (f.id ? [] : [`"${fieldTitle(f, i)}"`]));
     if (missing.length === 0) return null;
-    return `AgentFoo requires every form field to have an \`id\`, but ${missing.length} ${
+    return `AgenticFoo requires every form field to have an \`id\`, but ${missing.length} ${
         missing.length === 1 ? 'is' : 'are'
     } missing one: ${missing.join(', ')}.`;
 }

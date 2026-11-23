@@ -1,6 +1,6 @@
-# agent-foo
+# AgenticFoo
 
-`@ajeshajayan/agent-foo-react` — a React component that adds an AI "agent mode" to any HTML form. Wrap your `<form>` in `<AgentFoo>`, and users can fill it in by chatting: the agent reads the form's fields, asks for anything missing, and writes values straight into the inputs.
+`@ajeshajayan/agentic-foo-react` — a React component that adds an AI "agent mode" to any HTML form. Wrap your `<form>` in `<AgenticFoo>`, and users can fill it in by chatting: the agent reads the form's fields, asks for anything missing, and writes values straight into the inputs.
 
 > **Status:** early development. The OpenAI/OpenRouter client runs in the browser, which exposes your API key. Use it for local development only (see [Security](#security)).
 ## Light mode
@@ -17,7 +17,7 @@
 
 ## How it works
 
-1. `AgentFoo` inspects the `<form>` you pass as `children` and builds a system prompt describing every field (id, name, type, required, constraints, allowed values).
+1. `AgenticFoo` inspects the `<form>` you pass as `children` and builds a system prompt describing every field (id, name, type, required, constraints, allowed values).
 2. In agent mode, the user chats with the agent. Each message is sent along with the current form state.
 3. The agent loop (`runAgent`) calls the model, which must answer with a tool call every turn:
    - `update_form` – set values on fields (applied directly to the DOM inputs)
@@ -29,7 +29,7 @@
 ## Usage
 
 ```tsx
-import { AgentFoo } from './lib/AgentFoo';
+import { AgenticFoo } from './lib/AgenticFoo';
 import { defineTool } from './lib/agent';
 
 const getUserDetails = defineTool({
@@ -39,7 +39,7 @@ const getUserDetails = defineTool({
   execute: async () => ({ name: 'Ada Lovelace', email: 'ada@example.com' }),
 });
 
-<AgentFoo apiKey={key} model="openai/gpt-4o" tools={[getUserDetails]}>
+<AgenticFoo apiKey={key} model="openai/gpt-4o" tools={[getUserDetails]}>
   <form>
     <label htmlFor="name">Name</label>
     <input id="name" name="name" required />
@@ -47,7 +47,7 @@ const getUserDetails = defineTool({
     <input id="email" name="email" type="email" required />
     <button type="submit">Submit</button>
   </form>
-</AgentFoo>
+</AgenticFoo>
 ```
 
 ### Props
@@ -58,17 +58,17 @@ const getUserDetails = defineTool({
 | `apiKey`   | `string`       | API key for the model provider. Without it (or `model`) chat is disabled.   |
 | `model`    | `string`       | Model id, e.g. `"openai/gpt-4o"`.                                           |
 | `tools`    | `ToolSchema[]` | Optional developer tools the agent may call. Create them with `defineTool`. |
-| `classNames` | `AgentFooClassNames` | Optional class names per rendered element (see [Styling](#styling)). |
+| `classNames` | `AgenticFooClassNames` | Optional class names per rendered element (see [Styling](#styling)). |
 | `highlightDuration` | `number` | How long (ms) a field keeps `data-agent-updated` after the agent changes it. Default `1600`. |
 
 ### Styling
 
-AgentFoo ships **no CSS**, so it takes on your app's design. Style it in either of two ways:
+AgenticFoo ships **no CSS**, so it takes on your app's design. Style it in either of two ways:
 
 - **`classNames`**: pass a class for any slot. Works with CSS modules, Tailwind or plain classes. Slots: `root`, `toolbar`, `toggle`, `formContainer`, `error`, `chat`, `log`, `hint`, `message` (every bubble), `userMessage`, `agentMessage`, `pending`, `notice`, `composer`, `input`, `send`, `updatedField`.
-- **`data-agent-foo` attributes**: every element carries `data-agent-foo="<slot>"` (kebab-case, e.g. `form-container`). State is exposed too: the root has `data-mode="form" | "agent"` and `data-pending` while the agent runs, each message has `data-role="user" | "assistant"`, and the toggle has `aria-pressed`.
+- **`data-agentic-foo` attributes**: every element carries `data-agentic-foo="<slot>"` (kebab-case, e.g. `form-container`). State is exposed too: the root has `data-mode="form" | "agent"` and `data-pending` while the agent runs, each message has `data-role="user" | "assistant"`, and the toggle has `aria-pressed`.
 
-**Showing what the agent just filled.** When the agent changes a field, AgentFoo adds `data-agent-updated` (and `classNames.updatedField`, if set) to that input for `highlightDuration` ms. Updating the same field again restarts it, so CSS animations replay. How it looks is up to you:
+**Showing what the agent just filled.** When the agent changes a field, AgenticFoo adds `data-agent-updated` (and `classNames.updatedField`, if set) to that input for `highlightDuration` ms. Updating the same field again restarts it, so CSS animations replay. How it looks is up to you:
 
 ```css
 /* Flash the input itself */
@@ -103,9 +103,9 @@ A tool is a name, description, JSON Schema `parameters` (root must be `type: "ob
 
 ```
 lib/
-  AgentFoo.tsx          Main component: form wrapper, agent mode toggle, wiring
+  AgenticFoo.tsx        Main component: form wrapper, agent mode toggle, wiring
   AgentChat.tsx         Chat UI (unstyled)
-  types.ts              ChatMessage, FieldValue, FormUpdates, AgentFooClassNames
+  types.ts              ChatMessage, FieldValue, FormUpdates, AgenticFooClassNames
   agent/
     runAgent.ts         Provider-independent agent loop
     builtinTools.ts     update_form / ask_user / finish

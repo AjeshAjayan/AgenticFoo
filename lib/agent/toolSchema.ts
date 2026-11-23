@@ -28,7 +28,7 @@ export function getToolsError(tools: ToolSchema[] | undefined): string | null {
         if (!tool || typeof tool.name !== 'string' || !/^[a-zA-Z0-9_-]{1,64}$/.test(tool.name)) {
             return `${label} needs a \`name\` of 1-64 letters, digits, underscores or dashes.`;
         }
-        if (BUILTIN_TOOL_NAMES.has(tool.name)) return `${label} clashes with a built-in AgentFoo tool name.`;
+        if (BUILTIN_TOOL_NAMES.has(tool.name)) return `${label} clashes with a built-in AgenticFoo tool name.`;
         if (seen.has(tool.name)) return `${label} is defined more than once.`;
         seen.add(tool.name);
         if (!tool.description) return `${label} needs a \`description\`.`;

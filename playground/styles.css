@@ -144,7 +144,7 @@ body {
   max-width: 34em;
 }
 
-/* ---------- AgentFoo layout ---------- */
+/* ---------- AgenticFoo layout ---------- */
 
 .workspace {
   display: grid;
@@ -158,7 +158,7 @@ body {
     grid-template-columns: minmax(0, 34rem) minmax(0, 1fr);
   }
 
-  .workspace[data-mode="agent"] [data-agent-foo="toolbar"] {
+  .workspace[data-mode="agent"] [data-agentic-foo="toolbar"] {
     grid-column: 1 / -1;
   }
 
@@ -168,11 +168,11 @@ body {
   }
 }
 
-[data-agent-foo="toolbar"] {
+[data-agentic-foo="toolbar"] {
   display: flex;
 }
 
-[data-agent-foo="toggle"] {
+[data-agentic-foo="toggle"] {
   font: inherit;
   font-size: var(--step--1);
   font-weight: 500;
@@ -188,7 +188,7 @@ body {
 }
 
 /* A marker swatch: the same colour that flags agent-filled fields. */
-[data-agent-foo="toggle"]::before {
+[data-agentic-foo="toggle"]::before {
   content: "";
   width: 0.85rem;
   height: 0.85rem;
@@ -197,7 +197,7 @@ body {
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
 }
 
-[data-agent-foo="toggle"][aria-pressed="true"] {
+[data-agentic-foo="toggle"][aria-pressed="true"] {
   background: var(--ink);
   color: var(--on-ink);
 }
@@ -339,7 +339,7 @@ body {
   min-height: 0;
 }
 
-[data-agent-foo="log"] {
+[data-agentic-foo="log"] {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
@@ -348,32 +348,32 @@ body {
   padding: 0.25rem 0.25rem 0.25rem 0;
 }
 
-[data-agent-foo="hint"],
-[data-agent-foo="notice"] {
+[data-agentic-foo="hint"],
+[data-agentic-foo="notice"] {
   margin: 0;
   color: var(--graphite);
   max-width: 32em;
 }
 
-[data-agent-foo="notice"] {
+[data-agentic-foo="notice"] {
   font-size: var(--step--1);
 }
 
-[data-agent-foo="message"],
-[data-agent-foo="pending"] {
+[data-agentic-foo="message"],
+[data-agentic-foo="pending"] {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-width: 85%;
 }
 
-[data-agent-foo="message"][data-role="assistant"],
-[data-agent-foo="pending"] {
+[data-agentic-foo="message"][data-role="assistant"],
+[data-agentic-foo="pending"] {
   align-self: flex-start;
   border-left: 2px solid var(--ink);
   padding: 0.1rem 0 0.1rem 0.85rem;
 }
 
-[data-agent-foo="message"][data-role="user"] {
+[data-agentic-foo="message"][data-role="user"] {
   align-self: flex-end;
   background: var(--ink);
   color: var(--on-ink);
@@ -381,7 +381,7 @@ body {
   border-radius: 14px 14px 4px 14px;
 }
 
-[data-agent-foo="pending"] {
+[data-agentic-foo="pending"] {
   color: var(--graphite);
   animation: thinking 1.2s ease-in-out infinite alternate;
 }
@@ -391,7 +391,7 @@ body {
   to { opacity: 0.45; }
 }
 
-[data-agent-foo="composer"] {
+[data-agentic-foo="composer"] {
   display: flex;
   gap: 0.5rem;
   align-items: flex-end;
@@ -399,7 +399,7 @@ body {
   padding-top: 0.75rem;
 }
 
-[data-agent-foo="input"] {
+[data-agentic-foo="input"] {
   flex: 1;
   min-width: 0;
   font: inherit;
@@ -410,16 +410,16 @@ body {
   padding: 0.6rem 0.75rem;
 }
 
-[data-agent-foo="input"]::placeholder {
+[data-agentic-foo="input"]::placeholder {
   color: var(--graphite);
 }
 
-[data-agent-foo="input"]:focus {
+[data-agentic-foo="input"]:focus {
   outline: none;
   border-color: var(--ink);
 }
 
-[data-agent-foo="send"] {
+[data-agentic-foo="send"] {
   font: inherit;
   font-weight: 500;
   padding: 0.6rem 1.1rem;
@@ -430,13 +430,13 @@ body {
   cursor: pointer;
 }
 
-[data-agent-foo="send"]:disabled,
-[data-agent-foo="input"]:disabled {
+[data-agentic-foo="send"]:disabled,
+[data-agentic-foo="input"]:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-[data-agent-foo="error"] {
+[data-agentic-foo="error"] {
   margin: 0;
   padding: 1rem 1.25rem;
   border-left: 3px solid #b4372f;
@@ -493,7 +493,7 @@ body {
     100% { --marker-alpha: 0; color: var(--ink); }
   }
 
-  [data-agent-foo="pending"] {
+  [data-agentic-foo="pending"] {
     animation: none;
   }
 }
