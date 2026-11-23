@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-const STORAGE_KEY = "agent-foo-theme";
+const STORAGE_KEY = "agentic-foo-theme";
 const darkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
 
 function readSaved(): Theme | null {

@@ -101,7 +101,7 @@ export async function runAgent(options: RunAgentOptions): Promise<void> {
             messages.push(toolResult(call.id, result));
         } catch (err) {
             const error = err instanceof Error ? err.message : String(err);
-            console.error(`[AgentFoo] tool "${name}" failed`, err);
+            console.error(`[AgenticFoo] tool "${name}" failed`, err);
             onEvent({ type: 'tool_call', name, args, error });
             messages.push(toolResult(call.id, { error }));
         }

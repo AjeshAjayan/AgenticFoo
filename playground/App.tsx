@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AgentFoo, type AgentFooClassNames } from "../lib/AgentFoo";
+import { AgenticFoo, type AgenticFooClassNames } from "../lib/AgenticFoo";
 import { defineTool } from "../lib/agent";
 import { ThemeSwitch } from "./ThemeSwitch";
 
@@ -13,9 +13,9 @@ const getUserDetails = defineTool({
 
 const tools = [getUserDetails];
 
-// AgentFoo ships no styles. The playground passes a few class names to show the prop;
-// everything else is styled through the `data-agent-foo` attributes in styles.css.
-const classNames: AgentFooClassNames = {
+// AgenticFoo ships no styles. The playground passes a few class names to show the prop;
+// everything else is styled through the `data-agentic-foo` attributes in styles.css.
+const classNames: AgenticFooClassNames = {
   root: "workspace",
   formContainer: "sheet",
   chat: "notes",
@@ -49,7 +49,7 @@ export default function App() {
         </p>
       </header>
 
-      <AgentFoo
+      <AgenticFoo
         apiKey={import.meta.env.VITE_OPENAI_API_KEY}
         model={import.meta.env.VITE_OPENAI_MODEL}
         tools={tools}
@@ -70,7 +70,7 @@ export default function App() {
           </div>
           <button type="submit" className="submit">Send request</button>
         </form>
-      </AgentFoo>
+      </AgenticFoo>
 
       {submitted && (
         <section className="receipt" aria-live="polite">

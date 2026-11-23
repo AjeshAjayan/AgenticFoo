@@ -10,10 +10,10 @@ export type FieldValue = string | string[] | boolean;
 export type FormUpdates = Record<string, FieldValue>;
 
 /**
- * Optional class names for each element AgentFoo renders. AgentFoo ships no styles of its own;
- * every element also carries a stable `data-agent-foo="<slot>"` attribute you can target instead.
+ * Optional class names for each element AgenticFoo renders. AgenticFoo ships no styles of its own;
+ * every element also carries a stable `data-agentic-foo="<slot>"` attribute you can target instead.
  */
-export type AgentFooClassNames = Partial<Record<
+export type AgenticFooClassNames = Partial<Record<
     | 'root'
     | 'toolbar'
     | 'toggle'

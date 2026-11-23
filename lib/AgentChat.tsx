@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { cx } from './utils/cx';
-import type { AgentFooClassNames, ChatMessage } from './types';
+import type { AgenticFooClassNames, ChatMessage } from './types';
 
 type AgentChatProps = {
     messages: ChatMessage[];
     pending: boolean;
     disabledReason?: string;
     onSend: (text: string) => void;
-    classNames?: AgentFooClassNames;
+    classNames?: AgenticFooClassNames;
 };
 
-/** Unstyled chat UI. Style it through `classNames` or the `data-agent-foo` attributes. */
+/** Unstyled chat UI. Style it through `classNames` or the `data-agentic-foo` attributes. */
 export function AgentChat({ messages, pending, disabledReason, onSend, classNames: c = {} }: AgentChatProps) {
     const [draft, setDraft] = React.useState('');
     const logRef = React.useRef<HTMLDivElement>(null);
@@ -30,10 +30,10 @@ export function AgentChat({ messages, pending, disabledReason, onSend, className
         onSend(text);
     };
 
-    return <div className={c.chat} data-agent-foo="chat">
-        <div className={c.log} data-agent-foo="log" ref={logRef} role="log" aria-live="polite">
+    return <div className={c.chat} data-agentic-foo="chat">
+        <div className={c.log} data-agentic-foo="log" ref={logRef} role="log" aria-live="polite">
             {messages.length === 0 && (
-                <p className={c.hint} data-agent-foo="hint">
+                <p className={c.hint} data-agentic-foo="hint">
                     Tell the agent what to put in the form, e.g. “My name is Ada and my email is ada@example.com”.
                 </p>
             )}
@@ -41,30 +41,30 @@ export function AgentChat({ messages, pending, disabledReason, onSend, className
                 <div
                     key={i}
                     className={cx(c.message, m.role === 'user' ? c.userMessage : c.agentMessage)}
-                    data-agent-foo="message"
+                    data-agentic-foo="message"
                     data-role={m.role}
                 >
                     {m.content}
                 </div>
             ))}
             {pending && (
-                <div className={cx(c.message, c.agentMessage, c.pending)} data-agent-foo="pending" data-role="assistant">
+                <div className={cx(c.message, c.agentMessage, c.pending)} data-agentic-foo="pending" data-role="assistant">
                     Thinking…
                 </div>
             )}
         </div>
-        {disabledReason && <p className={c.notice} data-agent-foo="notice">{disabledReason}</p>}
-        <form className={c.composer} data-agent-foo="composer" onSubmit={submit}>
+        {disabledReason && <p className={c.notice} data-agentic-foo="notice">{disabledReason}</p>}
+        <form className={c.composer} data-agentic-foo="composer" onSubmit={submit}>
             <input
                 className={c.input}
-                data-agent-foo="input"
+                data-agentic-foo="input"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Message the agent…"
                 aria-label="Message the agent"
                 disabled={disabled}
             />
-            <button className={c.send} data-agent-foo="send" type="submit" disabled={disabled || !draft.trim()}>Send</button>
+            <button className={c.send} data-agentic-foo="send" type="submit" disabled={disabled || !draft.trim()}>Send</button>
         </form>
     </div>;
 }
